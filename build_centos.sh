@@ -26,4 +26,4 @@ make
 yum remove -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel
 
 # remove tooling
-yum remove -y automake libtool
+yum remove -y make automake libtool
