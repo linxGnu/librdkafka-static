@@ -14,7 +14,6 @@ STRIPFLAGS = -S -x
 # Dependencies and Rocksdb
 LZ4_COMMIT = e8baeca51ef2003d6c9ec21c32f1563fef1065b9
 ZLIB_COMMIT = cacf7f1d4e3d44d871b605da3b647f07d718623f
-SNAPPY_COMMIT = e9e11b84e629c3e06fbaa4f0a86de02ceb9d6992
 ZSTD_COMMIT = 8b6d96827c24dd09109830272f413254833317d9
 OPENSSL_COMMIT = 894da2fb7ed5d314ee5c2fc9fd2d9b8b74111596
 SASL_COMMIT = 0189425cc210555c36383293c468df5da73acc48
@@ -22,7 +21,7 @@ RDKAFKA_COMMIT = 7aa9b3964f7b63aa355fb7ff3bfc44e39eac7195
 
 SASL_OPTS = --enable-static=yes --enable-shared=no --prefix=$(ROOT_DIR)/libs/sasl/build/ --with-pic
 
-default: prepare zlib lz4 snappy zstd sasl openssl rdkafka
+default: prepare zlib lz4 zstd sasl openssl rdkafka
 
 .PHONY: prepare
 prepare:
@@ -45,16 +44,6 @@ lz4:
 	cd libs/lz4 && $(MAKE) clean && $(MAKE) $(MAKE_FLAGS) CFLAGS='-fPIC -O2 ${EXTRA_CFLAGS}' lz4 lz4-release
 	cp libs/lz4/lib/liblz4.a $(DEST_LIB)/
 	cp libs/lz4/lib/*.h $(DEST_INCLUDE)/
-
-.PHONY: snappy
-snappy:
-	git submodule update --remote --init --recursive -- libs/snappy
-	cd libs/snappy && git checkout $(SNAPPY_COMMIT)
-	cd libs/snappy && rm -rf build && mkdir -p build && cd build && \
-	CFLAGS='-O2 ${EXTRA_CFLAGS}' cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON .. && \
-	$(MAKE) clean && $(MAKE) $(MAKE_FLAGS) snappy
-	cp libs/snappy/build/libsnappy.a $(DEST_LIB)/
-	cp libs/snappy/*.h $(DEST_INCLUDE)/
 
 .PHONY: zstd
 zstd:
