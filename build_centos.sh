@@ -18,14 +18,6 @@ make install -j8
 popd
 rm -rf cmake-3.11.4 cmake-3.11.4.tar.gz
 
-# install zstd
-wget https://github.com/facebook/zstd/releases/download/v1.4.3/zstd-1.4.3.tar.gz
-tar xzf zstd-1.4.3.tar.gz
-pushd zstd-1.4.3
-make install -j8
-popd
-rm -rf zstd-1.4.3 zstd-1.4.3.tar.gz
-
 # build rocksdb
 PATH=$PATH:/opt/cmake/bin
 make

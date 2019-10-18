@@ -20,6 +20,8 @@ OPENSSL_COMMIT = 894da2fb7ed5d314ee5c2fc9fd2d9b8b74111596
 SASL_COMMIT = 0189425cc210555c36383293c468df5da73acc48
 RDKAFKA_COMMIT = 7aa9b3964f7b63aa355fb7ff3bfc44e39eac7195
 
+SASL_OPTS = --enable-static=yes --enable-shared=no --prefix=$(ROOT_DIR)/libs/sasl/build/ --with-pic
+
 default: prepare zlib lz4 snappy zstd sasl openssl rdkafka
 
 .PHONY: prepare
@@ -31,7 +33,7 @@ prepare:
 zlib:
 	git submodule update --remote --init --recursive -- libs/zlib
 	cd libs/zlib && git checkout $(ZLIB_COMMIT)
-	cd libs/zlib && CFLAGS='-fPIC -O2 ${EXTRA_CFLAGS}' LDFLAGS='${EXTRA_LDFLAGS}' ./configure --static && \
+	cd libs/zlib && CFLAGS='-fPIC -O2 ${EXTRA_CFLAGS}' ./configure --static && \
 	$(MAKE) clean && $(MAKE) $(MAKE_FLAGS) all
 	cp libs/zlib/libz.a $(DEST_LIB)/
 	cp libs/zlib/*.h $(DEST_INCLUDE)/
@@ -49,7 +51,7 @@ snappy:
 	git submodule update --remote --init --recursive -- libs/snappy
 	cd libs/snappy && git checkout $(SNAPPY_COMMIT)
 	cd libs/snappy && rm -rf build && mkdir -p build && cd build && \
-	CFLAGS='-O2 ${EXTRA_CFLAGS}' CXXFLAGS='-O2 ${EXTRA_CXXFLAGS}' LDFLAGS='${EXTRA_LDFLAGS}' cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON .. && \
+	CFLAGS='-O2 ${EXTRA_CFLAGS}' cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON .. && \
 	$(MAKE) clean && $(MAKE) $(MAKE_FLAGS) snappy
 	cp libs/snappy/build/libsnappy.a $(DEST_LIB)/
 	cp libs/snappy/*.h $(DEST_INCLUDE)/
@@ -66,19 +68,17 @@ zstd:
 sasl:
 	git submodule update --remote --init --recursive -- libs/sasl
 	cd libs/sasl && git checkout $(SASL_COMMIT)
-	cd libs/sasl && sh autogen.sh --enable-static=yes --enable-shared=no --prefix=$(ROOT_DIR)/libs/sasl/build/ --with-pic && \
-	./configure --enable-static=yes --enable-shared=no --prefix=$(ROOT_DIR)/libs/sasl/build/ --with-pic && \
-	$(MAKE) $(MAKE_FLAGS) install
-	cp libs/sasl/build/lib/libsasl2.a $(DEST_LIB)/
-	cp -R libs/sasl/build/include/sasl $(DEST_INCLUDE)/
+	cd libs/sasl && sh autogen.sh $(SASL_OPTS) && ./configure $(SASL_OPTS) && $(MAKE) $(MAKE_FLAGS) install
+	cp -R libs/sasl/build/lib/* $(DEST_LIB)/
+	cp -R libs/sasl/build/include/* $(DEST_INCLUDE)/
 
 .PHONY: openssl
 openssl:
 	git submodule update --remote --init --recursive -- libs/openssl
 	cd libs/openssl && git checkout $(OPENSSL_COMMIT)
-	cd libs/openssl && ./config no-dso no-shared zlib CFLAGS='-fPIC -O2 -Wl,--allow-multiple-definition' --release --prefix=$(ROOT_DIR)/libs/openssl/build/ && \
+	cd libs/openssl && ./config no-dso no-shared zlib CFLAGS='-fPIC -O2 -Wl,--allow-multiple-definition ${EXTRA_CFLAGS}' --release --prefix=$(ROOT_DIR)/libs/openssl/build/ && \
 	$(MAKE) $(MAKE_FLAGS) && $(MAKE) $(MAKE_FLAGS) install
-	cp libs/openssl/build/lib/*.a $(DEST_LIB)/
+	cp -R libs/openssl/build/lib/* $(DEST_LIB)/
 	cp -R libs/openssl/build/include/* $(DEST_INCLUDE)/
 
 .PHONY: rdkafka
@@ -86,5 +86,7 @@ rdkafka:
 	git submodule update --remote --init --recursive -- libs/rdkafka
 	cd libs/rdkafka && git checkout $(RDKAFKA_COMMIT)
 	cd libs/rdkafka && $(MAKE) clean && \
-	CXXFLAGS='-fPIC -O2 ${EXTRA_CFLAGS}' STATIC_LIB_zstd=$(DEST_LIB)/libzstd.a ./configure --enable-static && \
-	$(MAKE) $(MAKE_FLAGS) libs
+	CXXFLAGS='-I$(DEST_INCLUDE) -Wl,-rpath -Wl,$(DEST_LIB) ${EXTRA_CFLAGS}' \
+	CPPFLAGS='-I$(DEST_INCLUDE) -Wl,-rpath -Wl,$(DEST_LIB) ${EXTRA_CFLAGS}' \
+	LDFLAGS='-static -D$(DEST_LIB) -lzstd' \
+	./configure --enable-static && $(MAKE) $(MAKE_FLAGS) libs
