@@ -4,7 +4,7 @@
 yum update -y
 
 # install tooling
-yum install -y git wget which make gcc gcc-c++ automake libtool glibc-static libstdc++-static
+yum install -y git wget which make gcc gcc-c++ automake libtool
 
 # install deps for linking
 yum install -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel

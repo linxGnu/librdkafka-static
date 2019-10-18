@@ -85,8 +85,11 @@ openssl:
 rdkafka:
 	git submodule update --remote --init --recursive -- libs/rdkafka
 	cd libs/rdkafka && git checkout $(RDKAFKA_COMMIT)
-	cd libs/rdkafka && $(MAKE) clean && \
-	CXXFLAGS='-I$(DEST_INCLUDE) -Wl,-rpath -Wl,$(DEST_LIB) ${EXTRA_CFLAGS}' \
-	CPPFLAGS='-I$(DEST_INCLUDE) -Wl,-rpath -Wl,$(DEST_LIB) ${EXTRA_CFLAGS}' \
-	LDFLAGS='-static -D$(DEST_LIB) -lzstd' \
-	./configure --enable-static && $(MAKE) $(MAKE_FLAGS) libs
+	cd libs/rdkafka && $(MAKE) clean && mkdir build && \
+	./configure --libdir=$(DEST_LIB) --includedir=$(DEST_INCLUDE) \
+	--prefix=$(ROOT_DIR)/libs/rdkafka/build \
+	--CPPFLAGS="-fPIC -O2 -Wl,--allow-multiple-definition -Wl,-rpath" \
+	--disable-shared --no-cache --enable-static --enable-zstd --enable-sasl \
+	--enable-ssl --enable-gssapi --enable-lz4-ext --enable-c11threads --disable-debug-symbols
+	cd libs/rdkafka && \
+	$(MAKE) $(MAKE_FLAGS) && $(MAKE) $(MAKE_FLAGS) install
