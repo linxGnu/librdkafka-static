@@ -18,7 +18,7 @@ make install -j8
 popd
 rm -rf cmake-3.11.4 cmake-3.11.4.tar.gz
 
-# build rocksdb
+# build rdkafka
 PATH=$PATH:/opt/cmake/bin
 make
 
