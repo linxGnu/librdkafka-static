@@ -4,10 +4,10 @@
 yum update -y
 
 # install tooling
-yum install -y git wget which make gcc gcc-c++
+yum install -y git wget which make gcc gcc-c++ automake libtool glibc-static libstdc++-static
 
 # install deps for linking
-yum install -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel 
+yum install -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel
 
 # install cmake
 wget https://cmake.org/files/v3.11/cmake-3.11.4.tar.gz
@@ -28,7 +28,10 @@ rm -rf zstd-1.4.3 zstd-1.4.3.tar.gz
 
 # build rocksdb
 PATH=$PATH:/opt/cmake/bin
-make deps
+make
 
 # remove deps for linking
-yum remove -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel 
+yum remove -y snappy-devel zlib-devel lz4-devel cyrus-sasl-devel openssl-devel
+
+# remove tooling
+yum remove -y automake libtool
