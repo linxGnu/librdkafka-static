@@ -1,0 +1,21 @@
+[submodule "libs/lz4"]
+	path = libs/lz4
+	url = https://github.com/lz4/lz4.git
+[submodule "libs/zlib"]
+	path = libs/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "libs/snappy"]
+	path = libs/snappy
+	url = https://github.com/google/snappy.git
+[submodule "libs/zstd"]
+	path = libs/zstd
+	url = https://github.com/facebook/zstd.git
+[submodule "libs/openssl"]
+	path = libs/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "libs/sasl"]
+	path = libs/sasl
+	url = https://github.com/cyrusimap/cyrus-sasl.git
+[submodule "libs/rdkafka"]
+	path = libs/rdkafka
+	url = https://github.com/edenhill/librdkafka.git
